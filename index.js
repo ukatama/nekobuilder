@@ -74,6 +74,7 @@ app.post('/', (req, res) => {
                 const tag = data.ref.split('/')[2];
                 const build = log4js.getLogger('[BUILD]');
         
+                res.send('Build started.');
                 fs.exists('/tmp/nekobuilder')
                     .then((exists) => exists || fs.mkdir('/tmp/nekobuilder'))
                     .then(() => fs.exists(userDir))
@@ -86,12 +87,9 @@ app.post('/', (req, res) => {
                     .then(() => spawn('git', ['submodule', 'update', '--init', '--recursive', '--force'], {cwd: workDir}))
                     .then(() => spawn('docker', ['build', `--tag=${name}:${tag}`, workDir]))
                     .then(() => tag === 'master' && spawn('docker', ['tag', '-f', `${name}:${tag}`, `${name}:latest`]))
-                    .then(() => res.send('OK'))
                     .then(() => build.info('OK'))
-                    .catch((error) => {
-                        build.error(error);
-                        res.status(500).end();
-                    });
+                    .catch((error) => build.error(error))
+                    ;
                 return;
             default:
                 logger.info(event);
