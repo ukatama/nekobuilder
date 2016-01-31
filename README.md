@@ -13,6 +13,8 @@ docker build -t nekobuilder nekobuilder
 ```sh
 docker run -d \
   --name nekobuilder \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /usr/bin/docker:/usr/bin/docker \
   -p <PORT>:80 \
   -e SECRET=<SECRET> \
   nekobuilder
