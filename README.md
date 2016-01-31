@@ -1,4 +1,9 @@
 # Nekobuilder
+[![Build Status](https://img.shields.io/travis/ukatama/nekobuilder/master.svg?style=flat-square)](https://travis-ci.org/ukatama/nekobuilder)
+[![PeerDependencies](https://img.shields.io/david/peer/ukatama/nekobuilder.svg?style=flat-square)](https://david-dm.org/ukatama/nekobuilder#info=peerDependencies&view=list)
+[![Dependencies](https://img.shields.io/david/ukatama/nekobuilder.svg?style=flat-square)](https://david-dm.org/ukatama/nekobuilder)
+[![DevDependencies](https://img.shields.io/david/dev/ukatama/nekobuilder.svg?style=flat-square)](https://david-dm.org/ukatama/nekobuilder#info=devDependencies&view=list)
+
 Automated self-hosted docker image builder.
 Run `docker build` after the push notification from GitHub Webhooks.
 
