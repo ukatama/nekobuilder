@@ -11,7 +11,7 @@ const spawn = (command, args, options) =>
     new Promise((resolve, reject) => {
         const out = log4js.getLogger(`[${command}]`);
 
-        log4js.getLogger('[spawn]').info(command, args);
+        log4js.getLogger('[spawn]').info(command, args.join(' '));
 
         const child = child_process.spawn(command, args, Object.assign({
         }, options));
