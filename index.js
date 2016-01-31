@@ -83,8 +83,10 @@ app.post('/', (req, res) => {
                     .then((exists) => exists || spawn('git', ['clone', gitUrl, workDir]))
                     .then(() => spawn('git', ['fetch'], {cwd: workDir}))
                     .then(() => spawn('git', ['checkout', '--force', tag], {cwd: workDir}))
+                    .then(() => spawn('git', ['pull', '--rebase'], {cwd: workDir}))
                     .then(() => spawn('git', ['submodule', 'update', '--init', '--recursive', '--force'], {cwd: workDir}))
                     .then(() => spawn('docker', ['build', `--tag=${name}:${tag}`, workDir]))
+                    .then(() => tag === 'master' && spawn('docker', 'tag', '-f', `${name}:${tag}`, `${name}:latest`))
                     .then(() => res.send('OK'))
                     .then(() => build.info('OK'))
                     .catch((error) => {
