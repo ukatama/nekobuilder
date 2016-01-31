@@ -4,8 +4,8 @@
   "description": "Automated self-hosted docker image builder.",
   "main": "index.js",
   "scripts": {
-    "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node lib",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,8 @@
     "express": "^4.13.4",
     "fs-promise": "^0.4.0",
     "log4js": "^0.6.30"
+  },
+  "devDependencies": {
+    "jest-cli": "^0.8.2"
   }
 }
