@@ -9,8 +9,9 @@ const path = require('path');
 
 const spawn = (command, args, options) =>
     new Promise((resolve, reject) => {
-        const out = log4js.getLogger(`[${command}:stdout]`);
-        const err = log4js.getLogger(`[${command}:stderr]`);
+        const out = log4js.getLogger(`[${command}]`);
+
+        log4js.getLogger('[spawn]').info(command, args);
 
         const child = child_process.spawn(command, args, Object.assign({
         }, options));
@@ -18,13 +19,13 @@ const spawn = (command, args, options) =>
         child.stdout
             .pipe(byline.createStream())
             .on('data', (line) => {
-                out.info(line);
+                out.info(line.toString('utf-8'));
             });
 
         child.stderr
             .pipe(byline.createStream())
             .on('data', (line) => {
-                err.error(line);
+                out.error(line.toString('utf-8'));
             });
 
         child.stdin.end();
@@ -67,6 +68,7 @@ app.post('/', (req, res) => {
         
                 const gitUrl = data.repository.git_url;
                 const name = data.repository.full_name;
+                const userDir = path.join('/tmp/nekobuilder', name.split('/')[0]);
                 const workDir = path.join('/tmp/nekobuilder', name);
                 const gitDir = path.join(workDir, '.git');
                 const type = data.ref.split('/')[1];
@@ -75,10 +77,10 @@ app.post('/', (req, res) => {
         
                 fs.exists('/tmp/nekobuilder')
                     .then((exists) => exists || fs.mkdir('/tmp/nekobuilder'))
-                    .then(() => fs.exists(path.join('/tmp/nekobuilder', name.split('/')[0])))
-                    .then((exists) => exists || fs.mkdir(gitDir))
+                    .then(() => fs.exists(userDir))
+                    .then((exists) => exists || fs.mkdir(userDir))
                     .then(() => fs.exists(gitDir))
-                    .then((exists) => exists || spawn('git', ['clone', gitUrl, gitDir]))
+                    .then((exists) => exists || spawn('git', ['clone', gitUrl, workDir]))
                     .then(() => spawn('git', ['fetch'], {cwd: workDir}))
                     .then(() => spawn('git', ['checkout', '--force', tag], {cwd: workDir}))
                     .then(() => spawn('git', ['submodule', 'update', '--init', '--recursive', '--force'], {cwd: workDir}))
