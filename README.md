@@ -6,7 +6,7 @@ Run `docker build` after the push notification from GitHub Webhooks.
 ### Install
 ```sh
 git clone https://github.com/ukatama/nekobuilder.git
-docker buidt -t nekobuilder nekobuilder
+docker build -t nekobuilder nekobuilder
 ```
 
 ### Run
