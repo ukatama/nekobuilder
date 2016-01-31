@@ -1,6 +1,6 @@
 # Nekobuilder
 Automated self-hosted docker image builder.
-Run `docker build` after the push notification fron GitHub Webhooks.
+Run `docker build` after the push notification from GitHub Webhooks.
 
 ## As a container
 ### Install
