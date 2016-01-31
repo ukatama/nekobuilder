@@ -56,7 +56,6 @@ app.post('/', (req, res) => {
         switch (event) {
             case 'push':
                 const body = Buffer.concat(chunks).toString('utf-8');
-                console.log(body);
         
                 const localSignature = crypto.createHmac('sha1', process.env.SECRET).update(body).digest('hex');
                 if (signature !== `sha1=${localSignature}`) {
