@@ -1,0 +1,27 @@
+{
+  "name": "nekobuilder",
+  "version": "1.0.0",
+  "description": "Automated self-hosted docker image builder.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ukatama/nekobuilder.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ukatama/nekobuilder/issues"
+  },
+  "homepage": "https://github.com/ukatama/nekobuilder#readme",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "byline": "^4.2.1",
+    "express": "^4.13.4",
+    "fs-promise": "^0.4.0",
+    "log4js": "^0.6.30"
+  }
+}
