@@ -2,7 +2,7 @@
   "name": "nekobuilder",
   "version": "1.0.0",
   "description": "Automated self-hosted docker image builder.",
-  "main": "index.js",
+  "main": "lib",
   "scripts": {
     "build": "npm run gulp -- build",
     "gulp": "gulp",

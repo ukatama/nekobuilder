@@ -2,24 +2,22 @@
 jest.mock('express');
 jest.mock('fs-promise');
 jest.dontMock('log4js');
-jest.dontMock('../lib/app');
+jest.dontMock('../app');
 
 describe('app', () => {
-    'use strict';
-
     const crypto = require('crypto');
     const express = require('express');
-    const app = require('../lib/app');
-    const builder = require('../lib/builder');
+    const app = require('../app');
+    const task = require('../task');
 
     const reqHeaders = {
         'X-Hub-Signature': null,
         'X-GitHub-Event': null,
     };
 
-    let prevEnv;
-    let req, res, next;
-    let handler;
+    let prevEnv,
+        req, res, next,
+        handler;
     const secret = 'THE SECRET FOR TEST';
     beforeEach(() => {
         prevEnv = process.env;
@@ -39,7 +37,8 @@ describe('app', () => {
         };
         next = jest.genMockFunction();
 
-        handler = express.app.post.mock.calls.find((call) => call[0] === '/')[1];
+        handler =
+            express.app.post.mock.calls.find((call) => call[0] === '/')[1];
     });
     afterEach(() => {
         process.env= prevEnv;
@@ -66,7 +65,8 @@ describe('app', () => {
 
     it('respond 200 to ping', () => {
         const data = '{ "key": "value" }';
-        reqHeaders['X-Hub-Signature'] = `sha1=${crypto.createHmac('sha1', secret).update(data).digest('hex')}`;
+        reqHeaders['X-Hub-Signature'] =
+            `sha1=${crypto.createHmac('sha1', secret).update(data).digest('hex')}`;
         reqHeaders['X-GitHub-Event'] = 'ping';
 
         handler(req, res, next);
@@ -86,7 +86,8 @@ describe('app', () => {
             },
         };
         const data = JSON.stringify(push);
-        reqHeaders['X-Hub-Signature'] = `sha1=${crypto.createHmac('sha1', secret).update(data).digest('hex')}`;
+        reqHeaders['X-Hub-Signature'] =
+            `sha1=${crypto.createHmac('sha1', secret).update(data).digest('hex')}`;
         reqHeaders['X-GitHub-Event'] = 'push';
 
         handler(req, res, next);
@@ -97,6 +98,6 @@ describe('app', () => {
 
         expect(res.send).toBeCalled();
         expect(next).not.toBeCalled();
-        expect(builder.build).toBeCalledWith(push);
+        expect(task.pushTask).toBeCalledWith(push);
     });
 });

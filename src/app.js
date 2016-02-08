@@ -1,9 +1,9 @@
-const crypto = require('crypto');
-const express = require('express');
-const log4js = require('log4js');
-const builder = require('./builder');
+import { createHmac } from 'crypto';
+import express from 'express';
+import { getLogger } from 'log4js';
+import { pushTask } from './task';
 
-const logger = log4js.getLogger('[APP]');
+const logger = getLogger('[APP]');
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.post('/', (req, res) => {
                 const body = Buffer.concat(chunks).toString('utf-8');
 
                 const localSignature =
-                    crypto.createHmac('sha1', process.env.SECRET)
+                    createHmac('sha1', process.env.SECRET)
                         .update(body)
                         .digest('hex');
                 if (signature !== `sha1=${localSignature}`) {
@@ -35,9 +35,9 @@ app.post('/', (req, res) => {
                     return res.status(400).end();
                 }
 
-                const push = JSON.parse(body);
+                const pushData = JSON.parse(body);
                 res.send('Build started.');
-                builder.build(push);
+                pushTask(pushData);
                 return null;
             } default:
                 logger.info(event);
