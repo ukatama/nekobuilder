@@ -9,7 +9,7 @@ export function build(pushData) {
     return new Promise((resolve, reject) => {
         try {
             const child = spawn('docker', [
-                '--rm',
+                '--rm=true',
                 '-i',
                 '-v /usr/bin/docker:/usr/bin/docker:ro',
                 '-v /var/run/docker.sock:/var/run/docker.sock:ro',
@@ -25,7 +25,7 @@ export function build(pushData) {
                 return resolve();
             });
 
-            child.stdin.write(JSON.stringify(pushData)).end();
+            child.stdin.end(JSON.stringify(pushData));
 
             child.stdout.pipe(process.stdout);
             child.stderr.pipe(process.stderr);
