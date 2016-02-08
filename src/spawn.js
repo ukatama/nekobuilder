@@ -1,5 +1,3 @@
-'use strict';
-
 const byline = require('byline');
 const child_process = require('child_process');
 const log4js = require('log4js');

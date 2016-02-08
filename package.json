@@ -4,8 +4,12 @@
   "description": "Automated self-hosted docker image builder.",
   "main": "index.js",
   "scripts": {
+    "build": "npm run gulp -- build",
+    "gulp": "gulp",
     "start": "node lib",
-    "test": "jest"
+    "test": "npm run gulp -- test",
+    "postinstall": "cd nekodev && npm install",
+    "watch": "npm run gulp -- watch"
   },
   "repository": {
     "type": "git",
@@ -25,6 +29,7 @@
     "log4js": "^0.6.30"
   },
   "devDependencies": {
+    "gulp": "^3.9.0",
     "jest-cli": "^0.8.2"
   }
 }
