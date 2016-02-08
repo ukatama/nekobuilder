@@ -26,10 +26,9 @@ function runBuilder() {
         .then(() => null)
         .catch(() => null)
         .then(() => {
+            working = false;
             if (tasks.length > 0) {
                 runBuilder();
-            } else {
-                working = false;
             }
         });
 }
