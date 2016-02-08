@@ -9,10 +9,11 @@ export function build(pushData) {
     return new Promise((resolve, reject) => {
         try {
             const child = spawn('docker', [
-                '--rm=true',
+                'run',
+                '--rm',
                 '-i',
-                '-v /usr/bin/docker:/usr/bin/docker:ro',
-                '-v /var/run/docker.sock:/var/run/docker.sock:ro',
+                '-v', '/usr/bin/docker:/usr/bin/docker:ro',
+                '-v', '/var/run/docker.sock:/var/run/docker.sock:ro',
                 'ukatama/nekobuilder-builder',
             ], {
                 stdio: 'pipe',
