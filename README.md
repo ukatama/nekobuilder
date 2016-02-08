@@ -8,10 +8,18 @@ Automated self-hosted docker image builder.
 Run `docker build` after the push notification from GitHub Webhooks.
 
 ## As a container
+### Install builder
+```sh
+git clone https://github.com/ukatama/nekobuilder-builder.git
+docker build -t ukatama/nekobuilder-builder nekobuilder-builder
+```
+
 ### Install
 ```sh
 git clone https://github.com/ukatama/nekobuilder.git
-docker build -t nekobuilder nekobuilder
+cd nekobuilder
+git submodule update --init
+docker build -t nekobuilder .
 ```
 
 ### Run
@@ -28,10 +36,17 @@ docker run -d \
 `<PORT>` and `<SECRET>` are set to the same as the value set in Webhooks.
 
 ## As a standalone server
+### Install builder
+```sh
+git clone https://github.com/ukatama/nekobuilder-builder.git
+docker build -t ukatama/nekobuilder-builder nekobuilder-builder
+```
+
 ### Install
 ```
 git clone https://github.com/ukatama/nekobuilder.git
 cd nekobuilder
+git submodule update --init
 npm install
 ```
 
