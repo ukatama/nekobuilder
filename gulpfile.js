@@ -1,4 +1,4 @@
-require('./nekodev').gulp(
+require('nekodev').gulp(
     require('gulp'),
     {
         browser: false,

@@ -8,7 +8,6 @@
     "gulp": "gulp",
     "start": "node lib",
     "test": "npm run gulp -- test",
-    "postinstall": "cd nekodev && npm install",
     "watch": "npm run gulp -- watch"
   },
   "repository": {
@@ -30,6 +29,7 @@
   },
   "devDependencies": {
     "gulp": "^3.9.0",
-    "jest-cli": "^0.8.2"
+    "jest-cli": "^0.8.2",
+    "nekodev": "file:./nekodev"
   }
 }
