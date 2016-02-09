@@ -4,11 +4,9 @@ MAINTAINER ukatama dev.ukatama@gmail.com
 RUN apt-get update -yq
 RUN apt-get install -yq libapparmor-dev
 
-RUN mkdir -p /usr/src/app/nekodev
+RUN mkdir -p /usr/src/app/
 
-WORKDIR /usr/src/app/nekodev
-COPY nekodev/package.json /usr/src/app/nekodev
-RUN npm install
+COPY nekodev /usr/src/app/nekodev
 
 WORKDIR /usr/src/app
 COPY package.json /usr/src/app
