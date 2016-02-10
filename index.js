@@ -67,7 +67,7 @@ process.stdin
         logger.info('Build started');
 
         spawn('git', ['init', 'build'])
-            .then(() => spawn('git', ['fetch', clone_url], 'build'))
+            .then(() => spawn('git', ['fetch', clone_url, tag], 'build'))
             .then(() => spawn('git', ['checkout', '--force', id], 'build'))
             .then(() => spawn('git', ['submodule', 'update', '--init', '--recursive'], 'build'))
             .then(() => spawn('docker', ['build', '-t', `${image_name}:${tag}`, 'build']))
