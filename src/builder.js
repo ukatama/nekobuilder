@@ -8,6 +8,8 @@ import { spawn } from 'child_process';
 export function build(pushData) {
     return new Promise((resolve, reject) => {
         try {
+            if (pushData.deleted) return resolve();
+
             const child = spawn('docker', [
                 'run',
                 '--rm',

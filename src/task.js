@@ -19,7 +19,7 @@ function runBuilder() {
         'Task started',
         task.repository.full_name,
         task.ref,
-        task.head_commit.id
+        task.head_commit && task.head_commit.id
     );
 
     build(task)
@@ -44,7 +44,7 @@ export function pushTask(pushData) {
         'Task pushed',
         pushData.repository.full_name,
         pushData.ref,
-        pushData.head_commit.id
+        pushData.head_commit && pushData.head_commit.id
     );
 
     runBuilder();
