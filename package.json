@@ -1,6 +1,6 @@
 {
   "name": "nekobuilder-builder",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Inner building container for ukatama/nekobuilder.",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,5 @@
   "author": "ukatama",
   "license": "MIT",
   "dependencies": {
-    "byline": "^4.2.1",
-    "log4js": "^0.6.31"
   }
 }
