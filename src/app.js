@@ -20,10 +20,10 @@ app.use('/octicons', express.static(join(
 
 app.post('/hook', (req, res) => {
     const signature = req.get('X-Hub-Signature');
-    console.log(signature);
+    logger.info(signature);
 
     const event = req.get('X-GitHub-Event');
-    console.log(event);
+    logger.info(event);
 
     if (!signature) return res.status(400).end();
 
@@ -40,7 +40,7 @@ app.post('/hook', (req, res) => {
                         .update(body)
                         .digest('hex');
                 if (signature !== `sha1=${localSignature}`) {
-                    console.log(
+                    logger.info(
                         `${signature} does not matched with ${localSignature}`
                     );
                     return res.status(400).end();
@@ -117,5 +117,5 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
 );
 
 app.listen(process.env.PORT || 80, () => {
-    console.log('Listening');
+    logger.info('Listening');
 });
