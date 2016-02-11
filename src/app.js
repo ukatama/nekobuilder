@@ -96,7 +96,7 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
             .then(enforceFound),
         database('logs')
             .where('build_id', +req.params.buildId)
-            .orderBy('id', 'DESC'),
+            .orderBy('id', 'ASC'),
     ])
     .then(([repo, build, logs]) => {
         res.render('build', {
@@ -104,7 +104,7 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
             build,
             logs: logs.map((log) => ({
                 ...log,
-                timestamp: moment(log.timestamp).format('llll'),
+                timestamp: moment(log.timestamp).format('HH:mm:ss'),
             })),
         });
     })
