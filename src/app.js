@@ -63,22 +63,26 @@ app.get('/', (req, res) => {
         });
 });
 
-app.get('/:repoId([0-9]+)', (req, res) =>
-    database('repositories')
-        .where('id', +req.params.repoId)
-        .first()
-        .then((repo) => !repo
-            ? res.sendStatus(404)
-            : database('builds')
-                .where('repository_id', repo.id)
-                .then((builds) => res.render('repo', {
-                    repo,
-                    builds,
-                }))
-        )
-);
-
 const enforceFound = (a) => a || Promise.reject(new Error('Not found'));
+
+app.get('/:repoId([0-9]+)', (req, res) =>
+    Promise.all([
+        database('repositories')
+            .where('id', +req.params.repoId)
+            .first()
+            .then(enforceFound),
+        database('builds')
+            .where('repository_id',  +req.params.repoId)
+            .orderBy('id', 'DESC'),
+    ])
+    .then(([repo, builds]) =>
+        res.render('repo', {
+            repo,
+            builds,
+        })
+    )
+    .catch(() => res.sendStatus(404))
+);
 
 app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
     Promise.all([
@@ -91,7 +95,8 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
             .first()
             .then(enforceFound),
         database('logs')
-            .where('build_id', +req.params.buildId),
+            .where('build_id', +req.params.buildId)
+            .orderBy('id', 'DESC'),
     ])
     .then(([repo, build, logs]) => {
         res.render('build', {

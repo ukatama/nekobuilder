@@ -10,5 +10,6 @@ html
     table
         tbody
             each log in logs
-                td= log.timestamp
-                td= log.line
+                tr
+                    td= log.timestamp
+                    td= log.line

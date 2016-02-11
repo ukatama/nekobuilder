@@ -7,9 +7,10 @@ html
     table
         tbody
             each build in builds
-                th
-                    a(href=build.id + '/' + build.id)= build.id
-                td= build.state
-                td= build.ref
-                td= build.commit_message
-                td= build.commit_author_name
+                tr
+                    th
+                        a(href=build.repository_id + '/' + build.id)= build.id
+                    td= build.state
+                    td= build.ref
+                    td= build.commit_message
+                    td= build.commit_author_name
