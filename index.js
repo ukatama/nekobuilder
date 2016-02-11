@@ -1,38 +1,30 @@
 'use strict';
 
-const byline = require('byline');
-const getLogger = require('log4js').getLogger;
-
-const spawnLogger = getLogger(`[spawn]`);
 const spawn = (command, args, cwd) => {
     return new Promise((resolve, reject) => {
         try {
             if (!args) args = [];
 
-            spawnLogger.info(`$ ${command} ${args.join(' ')}`);
+            conosole.log(`$ ${command} ${args.join(' ')}`);
 
             const child = require('child_process').spawn(command, args, {
                 cwd,
                 stdio: 'pipe',
             });
 
-            const childLogger = getLogger(`[spawn:${command}:${child.pid}]`);
-
             child.on('exit', (code) => {
                 if (code) {
-                    spawnLogger.error(`${command}:${child.pid} exitied with ${code}`);
+                    console.error(`${command}:${child.pid} exitied with ${code}`);
                     return reject(code);
                 }
-                spawnLogger.info(`${command}:${child.pid} exitied with ${code}`);
+                console.log(`${command}:${child.pid} exitied with ${code}`);
                 return resolve();
             });
 
             child.stdin.end();
 
-            child.stdout.pipe(byline.createStream())
-                .on('data', (d) => childLogger.info(d.toString()));
-            child.stderr.pipe(byline.createStream())
-                .on('data', (d) => childLogger.error(d.toString()));
+            child.stdout.pipe(process.stdout);
+            child.stderr.pipe(process.stderr);
         } catch (e) {
             reject(e);
         }
@@ -44,15 +36,14 @@ process.stdin
     .on('data', (d) => chunks.push(d))
     .on('end', () => {
         const json = Buffer.concat(chunks).toString();
-        const data = JSON.parse(json);
+        const {
+            build,
+            repository,
+        } = JSON.parse(json);
 
-        const logger = getLogger('[DEFAULT]');
+        const ref = build.ref;
+        const id = build.commit_id;
 
-        const ref = data.ref;
-        const head_commit = data.head_commit;
-        const id = head_commit.id;
-
-        const repository = data.repository;
         const clone_url = repository.clone_url;
         const full_name = repository.full_name;
 
@@ -64,7 +55,7 @@ process.stdin
             tag === 'master' ? 'latest' : `${tag}-latest`
         );
 
-        logger.info('Build started');
+        console.log('Build started');
 
         spawn('git', ['init', 'build'])
             .then(() => spawn('git', ['fetch', clone_url, tag], 'build'))
@@ -75,11 +66,11 @@ process.stdin
                 spawn('docker', ['tag', '-f', `${image_name}:${tag}`, `${image_name}:${latest}`])
             )
             .then(() => {
-                logger.info('Bulid done');
+                console.log('Bulid done');
                 process.exit();
             })
             .catch((e) => {
-                logger.error(e);
+                consoler.error(e);
                 process.exit(1)
             });
     });
