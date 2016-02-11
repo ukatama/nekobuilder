@@ -38,7 +38,7 @@ describe('app', () => {
         next = jest.genMockFunction();
 
         handler =
-            express.app.post.mock.calls.find((call) => call[0] === '/')[1];
+            express.app.post.mock.calls.find((call) => call[0] === '/hook')[1];
     });
     afterEach(() => {
         process.env= prevEnv;
@@ -49,7 +49,7 @@ describe('app', () => {
         expect(express.app.listen.mock.calls[0][0]).toBe(80);
     });
 
-    it('handles POST /', () => {
+    it('handles POST /hook', () => {
         handler(req, res, next);
 
         expect(res.end).toBeCalled();

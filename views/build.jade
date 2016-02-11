@@ -1,0 +1,19 @@
+doctype
+html
+  head
+    title= `${repo.full_name} Nekobuilder`
+    link(rel="stylesheet", href="/octicons/octicons.css")
+  body
+    h1
+        a(href='/' + repo.id)
+            = repo.full_name
+        a.mega-octicon.octicon-mark-github(href=repo.url, target="_blank")
+    h2= build.commit_message
+    p= build.commit_author_name
+    p= build.state
+    table
+        tbody
+            each log in logs
+                tr
+                    td= log.timestamp
+                    td= log.line
