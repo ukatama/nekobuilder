@@ -32,6 +32,7 @@
     "log4js": "^0.6.30",
     "moment": "^2.11.2",
     "mysql2": "^0.15.8",
+    "octicons": "^3.4.1",
     "sqlite3": "^3.1.1"
   },
   "devDependencies": {

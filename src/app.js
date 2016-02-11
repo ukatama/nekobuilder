@@ -13,6 +13,11 @@ const app = express();
 app.set('view engine', 'jade');
 app.set('views', join(__dirname, '../views'));
 
+app.use('/octicons', express.static(join(
+    __dirname,
+    '../node_modules/octicons/octicons'
+)));
+
 app.post('/hook', (req, res) => {
     const signature = req.get('X-Hub-Signature');
     console.log(signature);
