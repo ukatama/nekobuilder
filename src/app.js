@@ -1,11 +1,17 @@
 import { createHmac } from 'crypto';
 import express from 'express';
 import { getLogger } from 'log4js';
+import moment from 'moment';
+import { join } from 'path';
+import { database } from './database';
 import { pushTask } from './task';
 
 const logger = getLogger('[APP]');
 
 const app = express();
+
+app.set('view engine', 'jade');
+app.set('views', join(__dirname, '../views'));
 
 app.post('/hook', (req, res) => {
     const signature = req.get('X-Hub-Signature');
@@ -46,6 +52,59 @@ app.post('/hook', (req, res) => {
         }
     });
 });
+
+app.get('/', (req, res) => {
+    database('repositories')
+        .select()
+        .then((repos) => {
+            res.render('repos', {
+                repos,
+            });
+        });
+});
+
+app.get('/:repoId([0-9]+)', (req, res) =>
+    database('repositories')
+        .where('id', +req.params.repoId)
+        .first()
+        .then((repo) => !repo
+            ? res.sendStatus(404)
+            : database('builds')
+                .where('repository_id', repo.id)
+                .then((builds) => res.render('repo', {
+                    repo,
+                    builds,
+                }))
+        )
+);
+
+const enforceFound = (a) => a || Promise.reject(new Error('Not found'));
+
+app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
+    Promise.all([
+        database('repositories')
+            .where('id', +req.params.repoId)
+            .first()
+            .then(enforceFound),
+        database('builds')
+            .where('id', +req.params.buildId)
+            .first()
+            .then(enforceFound),
+        database('logs')
+            .where('build_id', +req.params.buildId),
+    ])
+    .then(([repo, build, logs]) => {
+        res.render('build', {
+            repo,
+            build,
+            logs: logs.map((log) => ({
+                ...log,
+                timestamp: moment(log.timestamp).format('llll'),
+            })),
+        });
+    })
+    .catch(() => res.sendStatus(404))
+);
 
 app.listen(process.env.PORT || 80, () => {
     console.log('Listening');

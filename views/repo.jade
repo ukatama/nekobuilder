@@ -1,0 +1,15 @@
+doctype
+html
+  head
+    title= `${repo.full_name} Nekobuilder`
+  body
+    h1= repo.full_name
+    table
+        tbody
+            each build in builds
+                th
+                    a(href=build.id + '/' + build.id)= build.id
+                td= build.state
+                td= build.ref
+                td= build.commit_message
+                td= build.commit_author_name

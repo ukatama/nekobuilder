@@ -2,6 +2,7 @@
 
 const app = {
     get: jest.genMockFunction(),
+    set: jest.genMockFunction(),
     post: jest.genMockFunction(),
     listen: jest.genMockFunction(),
 };

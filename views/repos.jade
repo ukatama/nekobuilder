@@ -1,0 +1,12 @@
+doctype
+html
+  head
+    title Nekobuilder
+  body
+    table
+        tbody
+            each repo in repos
+                tr
+                    th
+                        a(href=repo.id)= repo.full_name
+                    td= repo.description
