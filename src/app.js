@@ -74,6 +74,7 @@ app.get('/', (req, res) =>
         })
         .join('builds', 'build_ids.id', 'builds.id')
         .join('repositories', 'builds.repository_id', 'repositories.id')
+        .orderBy('builds.started', 'DESC')
         .then((repos) => res.render('repos', { repos }))
 );
 
