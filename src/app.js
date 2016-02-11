@@ -7,7 +7,7 @@ const logger = getLogger('[APP]');
 
 const app = express();
 
-app.post('/', (req, res) => {
+app.post('/hook', (req, res) => {
     const signature = req.get('X-Hub-Signature');
     console.log(signature);
 
