@@ -66,16 +66,20 @@ export function build(id) {
                     ? Promise.reject(
                         new Error('Repository not found')
                     )
-                    : runBuildContainer({
+                    : database('builds').where({ id }).update({
+                        state: 'building',
+                    }).then(() => runBuildContainer({
                         build,
                         repository,
-                    })
+                    }))
                 )
         )
         .then(() => database('builds').where({ id }).update({
             state: 'succeeded',
+            ended: database.fn.now(),
         }))
         .catch(() => database('builds').where({ id }).update({
             state: 'failed',
+            ended: database.fn.now(),
         }));
 }
