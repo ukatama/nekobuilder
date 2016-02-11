@@ -1,6 +1,9 @@
 import byline from 'byline';
 import { spawn } from 'child_process';
+import { getLogger } from 'log4js';
 import { database } from './database';
+
+const logger = getLogger('[BUILDER]');
 
 const runBuildContainer = (data) =>
     new Promise((resolve, reject) => {
@@ -28,6 +31,7 @@ const runBuildContainer = (data) =>
             child.stdout
                 .pipe(byline.createStream())
                 .on('data', (line) => {
+                    logger.info(line.toString());
                     database('logs').insert({
                         build_id: data.build.id,
                         error: false,
@@ -37,6 +41,7 @@ const runBuildContainer = (data) =>
             child.stderr
                 .pipe(byline.createStream())
                 .on('data', (line) => {
+                    logger.error(line.toString());
                     database('logs').insert({
                         build_id: data.build.id,
                         error: true,
@@ -78,8 +83,11 @@ export function build(id) {
             state: 'succeeded',
             ended: database.fn.now(),
         }))
-        .catch(() => database('builds').where({ id }).update({
-            state: 'failed',
-            ended: database.fn.now(),
-        }));
+        .catch((e) => {
+            logger.error(e);
+            return database('builds').where({ id }).update({
+                state: 'failed',
+                ended: database.fn.now(),
+            });
+        });
 }
