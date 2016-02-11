@@ -10,3 +10,8 @@ html
                     th
                         a(href=repo.id)= repo.full_name
                     td= repo.description
+                    td= repo.state || ''
+                    td= repo.ref || ''
+                    td= repo.commit_message || ''
+                    td= repo.commit_author_name || ''
+                    td= repo.started || ''

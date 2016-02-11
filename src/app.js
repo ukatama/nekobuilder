@@ -58,15 +58,24 @@ app.post('/hook', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
-    database('repositories')
-        .select()
-        .then((repos) => {
-            res.render('repos', {
-                repos,
-            });
-        });
-});
+app.get('/', (req, res) =>
+    database
+        .select(
+            'repositories.*',
+            'ref',
+            'commit_message', 'commit_author_name',
+            'state', 'started'
+        )
+        .from(function() {
+            this.max('id as id')
+                .groupBy('repository_id')
+                .from('builds')
+                .as('build_ids');
+        })
+        .join('builds', 'build_ids.id', 'builds.id')
+        .join('repositories', 'builds.repository_id', 'repositories.id')
+        .then((repos) => res.render('repos', { repos }))
+);
 
 const enforceFound = (a) => a || Promise.reject(new Error('Not found'));
 
