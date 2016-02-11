@@ -14,7 +14,7 @@ const runBuildContainer = (data) =>
                 '-i',
                 '-v', '/usr/bin/docker:/usr/bin/docker:ro',
                 '-v', '/var/run/docker.sock:/var/run/docker.sock:ro',
-                'ukatama/nekobuilder-builder:feature-db',
+                'ukatama/nekobuilder-builder',
             ], {
                 stdio: 'pipe',
             });
