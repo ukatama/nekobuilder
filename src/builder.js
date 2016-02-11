@@ -30,23 +30,31 @@ const runBuildContainer = (data) =>
 
             child.stdout
                 .pipe(byline.createStream())
-                .on('data', (line) => {
-                    logger.info(line.toString());
-                    database('logs').insert({
-                        build_id: data.build.id,
-                        error: false,
-                        line,
-                    });
+                .on('data', (buf) => {
+                    const line = buf.toString();
+
+                    database('logs')
+                        .insert({
+                            build_id: data.build.id,
+                            error: false,
+                            line,
+                        })
+                        .then(() => logger.info(line))
+                        .catch((e) => logger.error(e));
                 });
             child.stderr
                 .pipe(byline.createStream())
-                .on('data', (line) => {
-                    logger.error(line.toString());
-                    database('logs').insert({
-                        build_id: data.build.id,
-                        error: true,
-                        line,
-                    });
+                .on('data', (buf) => {
+                    const line = buf.toString();
+
+                    database('logs')
+                        .insert({
+                            build_id: data.build.id,
+                            error: true,
+                            line,
+                        })
+                        .then(() => logger.error(line))
+                        .catch((e) => logger.error(e));
                 });
         } catch (e) {
             reject(e);
