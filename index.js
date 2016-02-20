@@ -1,5 +1,9 @@
 'use strict';
 
+const fs = require('fs-promise');
+const path = require('path');
+const yaml = require('js-yaml');
+
 const spawn = (command, args, cwd) => {
     return new Promise((resolve, reject) => {
         try {
@@ -58,13 +62,26 @@ process.stdin
                 tag === 'master' ? 'latest' : `${tag}-latest`
             );
 
+            const travis = 'build/.travis.yml';
+
             console.log('Build started');
 
             spawn('git', ['init', 'build'])
                 .then(() => spawn('git', ['fetch', clone_url, tag], 'build'))
                 .then(() => spawn('git', ['checkout', '--force', id], 'build'))
                 .then(() => spawn('git', ['submodule', 'update', '--init', '--recursive'], 'build'))
-                .then(() => spawn('docker', ['build', '-t', `${image_name}:${tag}`, 'build']))
+                .then(() => fs.exists(travis))
+                .then((exists) => exists && fs.readFile(travis))
+                .then((data) => data && yaml.safeLoad(data))
+                .then((conf) => conf && conf.env || [])
+                .then((env) => env.map((e) => ['-e', e]))
+                .then((env) => env.reduce((a, e) => a.concat(e), []))
+                .then((env) => spawn(
+                    'docker',
+                    ['build', '-t', `${image_name}:${tag}`]
+                        .concat(env)
+                        .concat(['build'])
+                ))
                 .then(() => latest &&
                     spawn('docker', ['tag', '-f', `${image_name}:${tag}`, `${image_name}:${latest}`])
                 )
