@@ -4,17 +4,17 @@ const fs = require('fs-promise');
 const path = require('path');
 const yaml = require('js-yaml');
 
-const spawn = (command, args, cwd) => {
+const spawn = (command, args, cwd, opts) => {
     return new Promise((resolve, reject) => {
         try {
             if (!args) args = [];
 
             console.log(`$ ${command} ${args.join(' ')}`);
 
-            const child = require('child_process').spawn(command, args, {
+            const child = require('child_process').spawn(command, args, Object.assign({}, {
                 cwd,
                 stdio: 'pipe',
-            });
+            }, opts));
 
             child.on('exit', (code) => {
                 if (code) {
@@ -71,17 +71,23 @@ process.stdin
                 .then(() => spawn('git', ['checkout', '--force', id], 'build'))
                 .then(() => spawn('git', ['submodule', 'update', '--init', '--recursive'], 'build'))
                 .then(() => fs.exists(travis))
-                .then((exists) => exists && fs.readFile(travis))
+                .then((exists) => {
+                    if (!exists) return null;
+                    console.log('Loading .travis.yml');
+                    return fs.readFile(travis);
+                })
                 .then((data) => data && yaml.safeLoad(data))
                 .then((conf) => conf && conf.env || [])
-                .then((env) => env.map((e) => ['-e', e]))
-                .then((env) => env.reduce((a, e) => a.concat(e), []))
-                .then((env) => spawn(
-                    'docker',
-                    ['build', '-t', `${image_name}:${tag}`]
-                        .concat(env)
-                        .concat(['build'])
-                ))
+                .then((env) => env.reduce((res, e) => {
+                    const m = `${e}`.match(/^(.*?)=(.*)$/);
+                    if (m) {
+                        res[m[1]] = m[2];
+                    }
+                    return res;
+                }, {}))
+                .then((env) => spawn('docker', ['build', '-t', `${image_name}:${tag}`, '.'], 'build', {
+                    env: env,
+                }))
                 .then(() => latest &&
                     spawn('docker', ['tag', '-f', `${image_name}:${tag}`, `${image_name}:${latest}`])
                 )
