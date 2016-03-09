@@ -14,6 +14,7 @@
     "js-yaml": "^3.5.3"
   },
   "devDependencies": {
+    "coveralls": "^2.11.8",
     "eslint": "^2.2.0",
     "eslint-plugin-node": "^1.0.0",
     "jest-cli": "^0.9.0"
