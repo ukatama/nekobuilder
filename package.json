@@ -17,5 +17,14 @@
     "eslint": "^2.2.0",
     "eslint-plugin-node": "^1.0.0",
     "jest-cli": "^0.9.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageOnlyFrom": {
+      "src/spawn.js": true
+    },
+    "unmockedModulePathPatterns": [
+      "fs-promise"
+    ]
   }
 }
