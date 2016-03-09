@@ -23,6 +23,7 @@ const runBuildContainer = (data) =>
                 if (code) {
                     return reject(`Builder exited with code ${code}`);
                 }
+
                 return resolve();
             });
 
@@ -93,6 +94,7 @@ export function build(id) {
         }))
         .catch((e) => {
             logger.error(e);
+
             return database('builds').where({ id }).update({
                 state: 'failed',
                 ended: database.fn.now(),

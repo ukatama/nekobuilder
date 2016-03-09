@@ -43,16 +43,19 @@ app.post('/hook', (req, res) => {
                     logger.info(
                         `${signature} does not matched with ${localSignature}`
                     );
+
                     return res.status(400).end();
                 }
 
                 const pushData = JSON.parse(body);
                 res.send('Build started.');
                 pushTask(pushData);
+
                 return null;
             } default:
                 logger.info(event);
                 res.status(200).end();
+
                 return null;
         }
     });
