@@ -1,3 +1,4 @@
+import Converter from 'ansi-to-html';
 import { createHmac } from 'crypto';
 import express from 'express';
 import { getLogger } from 'log4js';
@@ -6,8 +7,8 @@ import { join } from 'path';
 import { database } from './database';
 import { pushTask } from './task';
 
+const converter = new Converter();
 const logger = getLogger('[APP]');
-
 const app = express();
 
 app.set('view engine', 'jade');
@@ -122,6 +123,7 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
             build,
             logs: logs.map((log) => ({
                 ...log,
+                line: converter.toHtml(log.line),
                 timestamp: moment(log.timestamp).format('HH:mm:ss'),
             })),
         });
