@@ -1,4 +1,4 @@
-const createPromise = require('../lib/util').createPromise;
+const createPromise = require('../util').createPromise;
 
 module.exports = {
     exists: createPromise,

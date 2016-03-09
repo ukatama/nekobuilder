@@ -16,4 +16,4 @@ html
             each log in logs
                 tr
                     td= log.timestamp
-                    td= log.line
+                    td!= log.line
