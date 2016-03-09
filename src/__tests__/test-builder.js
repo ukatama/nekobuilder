@@ -1,7 +1,6 @@
 describe('builder', () => {
     'use strict';
 
-    const fs = require('fs-promise');
     const spawn = require('../spawn');
 
     jest.unmock('../builder');
@@ -16,7 +15,7 @@ describe('builder', () => {
                 ref: 'refs/heads/master',
             },
             repository: {
-                full_name: 'repo-FULL-name'
+                full_name: 'repo-FULL-name',
             },
         });
 

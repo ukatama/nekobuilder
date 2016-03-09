@@ -9,10 +9,7 @@
   },
   "author": "ukatama",
   "license": "MIT",
-  "dependencies": {
-    "fs-promise": "^0.5.0",
-    "js-yaml": "^3.5.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "coveralls": "^2.11.8",
     "eslint": "^2.2.0",
@@ -25,8 +22,6 @@
       "src/builder.js": true,
       "src/spawn.js": true
     },
-    "unmockedModulePathPatterns": [
-      "fs-promise"
-    ]
+    "unmockedModulePathPatterns": []
   }
 }
