@@ -1,11 +1,13 @@
 import Converter from 'ansi-to-html';
-import { createHmac } from 'crypto';
+import {createHmac} from 'crypto';
 import express from 'express';
-import { getLogger } from 'log4js';
+import {getLogger} from 'log4js';
 import moment from 'moment';
-import { join } from 'path';
-import { database } from './database';
-import { pushTask } from './task';
+import {join} from 'path';
+import {pushTask} from './task';
+import {Build} from './models/build';
+import {Log} from './models/log';
+import {Repository} from './models/repository';
 
 const converter = new Converter();
 const logger = getLogger('[APP]');
@@ -62,73 +64,67 @@ app.post('/hook', (req, res) => {
     });
 });
 
-app.get('/', (req, res) =>
-    database
-        .select(
-            'repositories.*',
-            'ref',
-            'commit_message', 'commit_author_name',
-            'state', 'started'
-        )
-        .from(function() {
-            this.max('id as id')
-                .groupBy('repository_id')
-                .from('builds')
-                .as('build_ids');
-        })
-        .join('builds', 'build_ids.id', 'builds.id')
-        .join('repositories', 'builds.repository_id', 'repositories.id')
-        .orderBy('builds.started', 'DESC')
-        .then((repos) => res.render('repos', { repos }))
+app.get('/', (req, res, next) =>
+    Repository.findAll()
+        .then((repos) => Promise.all(
+            repos.map((repo) => Build
+                .find('repository_id', repo.id)
+                .orderBy('started', 'DESC')
+                .first()
+                // eslint-disable-next-line max-nested-callbacks
+                .then((build) => ({
+                    ...repo,
+                    ...build,
+                    started: new Date(build.started),
+                }))
+            )
+        ))
+        .then((repos) => repos.sort((a, b) => (a.started < b.started)))
+        .then((repos) => repos.map((repo) => ({
+            ...repo,
+            started: moment(repo.stareted).format('lll'),
+        })))
+        .then((repos) => res.render('repos', {repos}))
+        .catch(next)
 );
 
-const enforceFound = (a) => a || Promise.reject(new Error('Not found'));
-
-app.get('/:repoId([0-9]+)', (req, res) =>
-    Promise.all([
-        database('repositories')
-            .where('id', +req.params.repoId)
-            .first()
-            .then(enforceFound),
-        database('builds')
-            .where('repository_id',  +req.params.repoId)
-            .orderBy('id', 'DESC'),
-    ])
-    .then(([repo, builds]) =>
-        res.render('repo', {
+app.get('/:repoId([0-9]+)', (req, res, next) =>
+    Promise
+        .all([
+            Repository.findOne('id', +req.params.repoId),
+            Build.find('repository_id', +req.params.repoId),
+        ])
+        .then(([repo, builds]) => ({
             repo,
-            builds,
-        })
-    )
-    .catch(() => res.sendStatus(404))
+            builds: builds.map((build) => ({
+                ...build,
+                started: moment(build.started).format('lll'),
+            })).reverse(),
+        }))
+        .then(({repo, builds}) =>
+            res.render('repo', {repo, builds})
+        )
+        .catch(next)
 );
 
 app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res, next) =>
-    Promise.all([
-        database('repositories')
-            .where('id', +req.params.repoId)
-            .first()
-            .then(enforceFound),
-        database('builds')
-            .where('id', +req.params.buildId)
-            .first()
-            .then(enforceFound),
-        database('logs')
-            .where('build_id', +req.params.buildId)
-            .orderBy('id', 'ASC'),
-    ])
-    .then(([repo, build, logs]) => {
-        res.render('build', {
-            repo,
-            build,
-            logs: logs.map((log) => ({
-                ...log,
-                line: converter.toHtml(log.line),
-                timestamp: moment(log.timestamp).format('HH:mm:ss'),
-            })),
-        });
-    })
-    .catch(next)
+    Promise
+        .all([
+            Repository.findOne('id', +req.params.repoId),
+            Build.findOne('id', +req.params.buildId),
+            Log
+                .find('build_id', +req.params.buildId)
+                .orderBy('id', 'ASC')
+                .then((logs) => logs.map((log) => ({
+                    ...log,
+                    line: converter.toHtml(log.line),
+                    timestamp: moment(log.timestamp).format('HH:mm:ss'),
+                }))),
+        ])
+        .then(([repo, build, logs]) =>
+            res.render('build', {repo, build, logs})
+        )
+        .catch(next)
 );
 
 app.listen(process.env.PORT || 80, () => {

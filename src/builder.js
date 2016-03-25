@@ -1,7 +1,9 @@
 import byline from 'byline';
-import { spawn } from 'child_process';
-import { getLogger } from 'log4js';
-import { database } from './database';
+import {spawn} from 'child_process';
+import {getLogger} from 'log4js';
+import {Build} from './models/build';
+import {Log} from './models/log';
+import {Repository} from './models/repository';
 
 const logger = getLogger('[BUILDER]');
 
@@ -34,8 +36,8 @@ const runBuildContainer = (data) =>
                 .on('data', (buf) => {
                     const line = buf.toString();
 
-                    database('logs')
-                        .insert({
+                    Log
+                        .create({
                             build_id: data.build.id,
                             error: false,
                             line,
@@ -48,8 +50,8 @@ const runBuildContainer = (data) =>
                 .on('data', (buf) => {
                     const line = buf.toString();
 
-                    database('logs')
-                        .insert({
+                    Log
+                        .create({
                             build_id: data.build.id,
                             error: true,
                             line,
@@ -68,36 +70,21 @@ const runBuildContainer = (data) =>
  * @return {Promise} Resolved when build done. Rected when failed.
  */
 export function build(id) {
-    return database('builds')
-        .where('id', id)
-        .first()
-        .then((build) => !build
-            ? Promise.reject(new Error('Build not found'))
-            : database('repositories')
-                .where('id', build.repository_id)
-                .first()
-                .then((repository) => !repository
-                    ? Promise.reject(
-                        new Error('Repository not found')
-                    )
-                    : database('builds').where({ id }).update({
-                        state: 'building',
-                    }).then(() => runBuildContainer({
-                        build,
-                        repository,
-                    }))
-                )
+    return Build
+        .findOne({id})
+        .then(({repository_id}) => Repository.findOne('id', repository_id))
+        .then((repository) =>
+            Build
+                .update({state: 'building'}, {id})
+                .then((build) => ({build, repository}))
         )
-        .then(() => database('builds').where({ id }).update({
-            state: 'succeeded',
-            ended: database.fn.now(),
-        }))
+        .then(runBuildContainer)
+        .then(() =>
+            Build.update({state: 'succeeded', ended: Build.fn.now()}, {id})
+        )
         .catch((e) => {
             logger.error(e);
 
-            return database('builds').where({ id }).update({
-                state: 'failed',
-                ended: database.fn.now(),
-            });
+            Build.update({state: 'failed', ended: Build.fn.now()}, {id});
         });
 }

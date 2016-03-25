@@ -4,12 +4,12 @@
   "description": "Automated self-hosted docker image builder.",
   "main": "lib",
   "scripts": {
-    "build": "npm run gulp -- build",
-    "gulp": "gulp",
-    "start": "node lib",
-    "test": "npm run gulp -- test",
+    "start": "node .",
+    "build": "gulp build",
+    "production": "gulp production",
+    "test": "gulp test",
     "version": "update-changelog && git add CHANGELOG.md",
-    "watch": "npm run gulp -- watch"
+    "watch": "gulp build test serve watch"
   },
   "repository": {
     "type": "git",

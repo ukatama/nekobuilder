@@ -1,7 +1,9 @@
-import { pick } from 'lodash';
-import { getLogger } from 'log4js';
-import { build } from './builder';
-import { database } from './database';
+import {pick} from 'lodash';
+import {getLogger} from 'log4js';
+import {build} from './builder';
+import {NOT_FOUND} from './models/model';
+import {Build} from './models/build';
+import {Repository} from './models/repository';
 
 const logger = getLogger('[TASK]');
 
@@ -9,21 +11,18 @@ let working = false;
 
 /**
  * Run builder
+ * @returns {Promise} promise
  */
 function runBuilder() {
-    if (working) return;
+    if (working) return Promise.resolve();
 
     working = true;
 
-    database('builds')
-        .where('state', 'pending')
+    return Build
+        .find('state', 'pending')
         .first()
-        .then((b) => {
-            if (!b) return false;
-
-            return database('repositories')
-                .where('id', b.repository_id)
-                .first()
+        .then((b) =>
+            b && Repository.findOne('id', b.repository_id)
                 .then((r) => {
                     logger.info(
                         'Task started',
@@ -35,9 +34,13 @@ function runBuilder() {
 
                     return build(b.id);
                 })
-                .then(() => true);
+                .then(() => true)
+        )
+        .catch((e) => {
+            logger.error(e);
+
+            return true;
         })
-        .catch((e) => logger.error(e) || true)
         .then((hasNext) => {
             logger.info('Task done');
             working = false;
@@ -48,6 +51,7 @@ function runBuilder() {
 /**
  * Push task to build
  * @param {Object} pushData - Object from github.
+ * @returns {Promise} promise
  */
 export function pushTask(pushData) {
     const pushedRepo = {
@@ -69,23 +73,19 @@ export function pushTask(pushData) {
         commit_url: headCommit.url,
     };
 
-    database('repositories')
-        .where('user', pushedRepo.user)
-        .where('name', pushedRepo.name)
-        .first()
-        .then(
-            (repo) => repo && repo.id ||
-                database('repositories')
-                    .insert(pushedRepo)
-                    .then((ids) => ids[0])
+    return Repository
+        .findOne({
+            user: pushedRepo.user,
+            name: pushedRepo.name,
+        })
+        .catch((e) => e === NOT_FOUND
+            ? Repository.create(pushedRepo)
+            : Promise.reject(e)
         )
-        .then(
-            (repository_id) => database('builds')
-                .insert({
-                    ...pushedBuild,
-                    repository_id,
-                })
-        )
+        .then((repo) => Build.create({
+            ...pushedBuild,
+            repository_id: repo.id,
+        }))
         .then(() => {
             logger.info(
                 'Task pushed',
@@ -94,7 +94,7 @@ export function pushTask(pushData) {
                 pushData.head_commit && pushData.head_commit.id
             );
 
-            runBuilder();
+            return runBuilder();
         })
         .catch((e) => logger.error(e));
 }
