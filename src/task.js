@@ -95,5 +95,6 @@ export function pushTask(pushData) {
             );
 
             runBuilder();
-        });
+        })
+        .catch((e) => logger.error(e));
 }

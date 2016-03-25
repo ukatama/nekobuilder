@@ -103,7 +103,7 @@ app.get('/:repoId([0-9]+)', (req, res) =>
     .catch(() => res.sendStatus(404))
 );
 
-app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
+app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res, next) =>
     Promise.all([
         database('repositories')
             .where('id', +req.params.repoId)
@@ -128,7 +128,7 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res) =>
             })),
         });
     })
-    .catch(() => res.sendStatus(404))
+    .catch(next)
 );
 
 app.listen(process.env.PORT || 80, () => {
