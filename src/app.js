@@ -4,7 +4,6 @@ import express from 'express';
 import {getLogger} from 'log4js';
 import moment from 'moment';
 import {join} from 'path';
-import {pushTask} from './task';
 import {Build} from './models/build';
 import {Log} from './models/log';
 import {Repository} from './models/repository';
@@ -21,7 +20,7 @@ app.use('/octicons', express.static(join(
     '../node_modules/octicons/octicons'
 )));
 
-app.post('/hook', (req, res) => {
+app.post('/hook', (req, res, next) => {
     const signature = req.get('X-Hub-Signature');
     logger.info(signature);
 
@@ -34,33 +33,28 @@ app.post('/hook', (req, res) => {
 
     req.on('data', (chunk) => chunks.push(chunk));
     req.on('end', () => {
-        switch (event) {
-            case 'push': {
-                const body = Buffer.concat(chunks).toString('utf-8');
+        if (event === 'push') {
+            const body = Buffer.concat(chunks).toString('utf-8');
 
-                const localSignature =
-                    createHmac('sha1', process.env.SECRET)
-                        .update(body)
-                        .digest('hex');
-                if (signature !== `sha1=${localSignature}`) {
-                    logger.info(
-                        `${signature} does not matched with ${localSignature}`
-                    );
+            const localSignature =
+                createHmac('sha1', process.env.SECRET)
+                    .update(body)
+                    .digest('hex');
+            if (signature !== `sha1=${localSignature}`) {
+                logger.info(
+                    `${signature} does not matched with ${localSignature}`
+                );
 
-                    return res.status(400).end();
-                }
+                return res.status(400).end();
+            }
 
-                const pushData = JSON.parse(body);
-                res.send('Build started.');
-                pushTask(pushData);
-
-                return null;
-            } default:
-                logger.info(event);
-                res.status(200).end();
-
-                return null;
+            return Build.fromHook(JSON.parse(body))
+                .then(() => res.send('Build started.'))
+                .catch(next);
         }
+
+        logger.info(event);
+        res.status(200).end();
     });
 });
 
@@ -124,6 +118,12 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res, next) =>
         .then(([repo, build, logs]) =>
             res.render('build', {repo, build, logs})
         )
+        .catch(next)
+);
+
+app.post('/:repoId([0-9]+)/:buildId([0-9]+)/rebuild', (req, res, next) =>
+    Build.rebuild('id', +req.params.repoId)
+        .then(({repository_id, id}) => res.redirect(`/${repository_id}/${id}`))
         .catch(next)
 );
 

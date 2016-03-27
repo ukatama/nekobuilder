@@ -7,8 +7,9 @@ jest.dontMock('../app');
 describe('app', () => {
     const crypto = require('crypto');
     const express = require('express');
-    const app = require('../app');
-    const task = require('../task');
+    require('../app');
+
+    const {Build} = require('../models/build');
 
     const reqHeaders = {
         'X-Hub-Signature': null,
@@ -78,7 +79,7 @@ describe('app', () => {
         expect(next).not.toBeCalled();
     });
 
-    it('respond 200 and start building to push', () => {
+    pit('respond 200 and start building to push', () => {
         const push = {
             repository: {
                 git_url: 'git_url',
@@ -90,14 +91,19 @@ describe('app', () => {
             `sha1=${crypto.createHmac('sha1', secret).update(data).digest('hex')}`;
         reqHeaders['X-GitHub-Event'] = 'push';
 
+        Build.fromHook.mockReturnValue(Promise.resolve({}));
         handler(req, res, next);
+
         req.on.mock.calls.filter((call) => call[0] === 'data')
             .forEach((call) => call[1](new Buffer(data)));
         req.on.mock.calls.filter((call) => call[0] === 'end')
             .forEach((call) => call[1]());
 
-        expect(res.send).toBeCalled();
-        expect(next).not.toBeCalled();
-        expect(task.pushTask).toBeCalledWith(push);
+        return Promise.resolve()
+            .then(() => {
+                expect(Build.fromHook.mock.calls).toEqual([[push]]);
+                expect(res.send.mock.calls).toEqual([['Build started.']]);
+                expect(next).not.toBeCalled();
+            });
     });
 });
