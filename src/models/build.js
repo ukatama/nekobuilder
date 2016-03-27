@@ -47,14 +47,14 @@ export class BuildModel extends Model {
                 url: repository.url,
                 clone_url: repository.clone_url,
             }) : Promise.reject(e))
-            .then((repo) => this.create({
+            .then((repo) => (ref && head_commit) ? this.create({
                 repository_id: repo.id,
                 ref,
                 commit_url: head_commit.url,
                 commit_id: head_commit.id,
                 commit_message: head_commit.message,
                 commit_author_name: head_commit.author.name,
-            }));
+            }) : null);
     }
 
     rebuild(...where) {

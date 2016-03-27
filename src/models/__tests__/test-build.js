@@ -165,6 +165,33 @@ describe('Build', () => {
             });
     });
 
+    pit('ignores branch deleted hook', () => {
+        Repository.create.mockClear();
+        Repository.update.mockClear();
+        Build.create.mockClear();
+
+        const data = {
+            repository: {
+                name: 'name',
+                description: 'description',
+                url: 'url',
+                full_name: 'full_name',
+                clone_url: 'clone_url',
+                owner: {
+                    name: 'owner_name',
+                },
+            },
+            ref: null,
+            head_commit: null,
+        };
+
+        return Build.fromHook(data)
+            .then((result) => {
+                expect(result).toBeNull();
+                expect(Build.create).not.toBeCalled();
+            });
+    });
+
     pit('rebuilds', () => {
         Build.findOne.mockReturnValue(Promise.resolve({
             id: 3,
