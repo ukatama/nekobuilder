@@ -1,4 +1,5 @@
-import {Model} from './model';
+import {Model, NOT_FOUND} from './model';
+import {Repository} from './repository';
 
 export class BuildModel extends Model {
     constructor() {
@@ -26,6 +27,33 @@ export class BuildModel extends Model {
             .default(this.fn.now());
         table.timestamp('ended')
             .nullable();
+    }
+
+    fromHook({ref, head_commit, repository}) {
+        return Repository
+            .update({
+                name: repository.name,
+                description: repository.description,
+            }, {
+                user: repository.owner.name,
+                name: repository.name,
+            })
+            .catch((e) => e === NOT_FOUND ? Repository.create({
+                user: repository.owner.name,
+                name: repository.name,
+                full_name: repository.full_name,
+                description: repository.description,
+                url: repository.url,
+                clone_url: repository.clone_url,
+            }) : Promise.reject(e))
+            .then((repo) => this.create({
+                repository_id: repo.id,
+                ref,
+                commit_url: head_commit.url,
+                commit_id: head_commit.id,
+                commit_message: head_commit.message,
+                commit_author_name: head_commit.author.name,
+            }));
     }
 }
 export const Build = new BuildModel();
