@@ -73,8 +73,8 @@ app.get('/', (req, res, next) =>
                 .first()
                 // eslint-disable-next-line max-nested-callbacks
                 .then((build) => ({
-                    ...repo,
                     ...build,
+                    ...repo,
                     started: new Date(build.started),
                 }))
             )
