@@ -3,6 +3,7 @@ describe('Build', () => {
     const ColumnBuilder = require('knex/lib/schema/columnbuilder');
 
     const {Model, NOT_FOUND} = require('../model');
+    const {Log} = require('../log');
     const {Repository} = require('../repository');
 
     jest.unmock('../build');
@@ -161,6 +162,26 @@ describe('Build', () => {
                     commit_author_name: 'author_name',
                 }]]);
                 expect(build).toEqual(result);
+            });
+    });
+
+    pit('rebuilds', () => {
+        Build.findOne.mockReturnValue(Promise.resolve({
+            id: 3,
+        }));
+        Build.update.mockReturnValue(Promise.resolve({
+            id: 3,
+        }));
+        Log.delete.mockReturnValue(Promise.resolve());
+
+        return Build.rebuild('id', 3)
+            .then(() => {
+                expect(Build.findOne.mock.calls).toEqual([['id', 3]]);
+                expect(Build.update.mock.calls).toEqual([[{
+                    state: 'pending',
+                    started: Build.fn.now(),
+                }, {id: 3}]]);
+                expect(Log.delete.mock.calls).toEqual([['build_id', 3]]);
             });
     });
 });

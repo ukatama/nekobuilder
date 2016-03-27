@@ -121,6 +121,12 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res, next) =>
         .catch(next)
 );
 
+app.post('/:repoId([0-9]+)/:buildId([0-9]+)/rebuild', (req, res, next) =>
+    Build.rebuild('id', +req.params.repoId)
+        .then(({repository_id, id}) => res.redirect(`/${repository_id}/${id}`))
+        .catch(next)
+);
+
 app.listen(process.env.PORT || 80, () => {
     logger.info('Listening');
 });

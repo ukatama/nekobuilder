@@ -1,4 +1,5 @@
 import {Model, NOT_FOUND} from './model';
+import {Log} from './log';
 import {Repository} from './repository';
 
 export class BuildModel extends Model {
@@ -54,6 +55,15 @@ export class BuildModel extends Model {
                 commit_message: head_commit.message,
                 commit_author_name: head_commit.author.name,
             }));
+    }
+
+    rebuild(...where) {
+        return this.findOne(...where)
+            .then((build) => Log.delete('build_id', build.id).then(() => build))
+            .then((build) => this.update({
+                state: 'pending',
+                started: this.fn.now(),
+            }, {id: build.id}));
     }
 }
 export const Build = new BuildModel();

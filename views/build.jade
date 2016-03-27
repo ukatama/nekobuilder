@@ -11,6 +11,8 @@ html
     h2= build.commit_message
     p= build.commit_author_name
     p= build.state
+    form(method="POST", action=`/${repo.id}/${build.id}/rebuild`)
+        input(type="submit", value="rebuild")
     table
         tbody
             each log in logs
