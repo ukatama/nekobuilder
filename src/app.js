@@ -122,7 +122,7 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res, next) =>
 );
 
 app.post('/:repoId([0-9]+)/:buildId([0-9]+)/rebuild', (req, res, next) =>
-    Build.rebuild('id', +req.params.repoId)
+    Build.rebuild('id', +req.params.buildId)
         .then(({repository_id, id}) => res.redirect(`/${repository_id}/${id}`))
         .catch(next)
 );
