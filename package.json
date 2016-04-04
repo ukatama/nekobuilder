@@ -40,7 +40,6 @@
   "devDependencies": {
     "coveralls": "^2.11.8",
     "gulp": "^3.9.0",
-    "jest-cli": "^0.9.0",
     "nekodev": "file:./nekodev",
     "update-changelog": "^1.0.1"
   }
