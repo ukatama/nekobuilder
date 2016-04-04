@@ -1,6 +1,7 @@
 describe('builder', () => {
     'use strict';
 
+    jest.mock('../spawn');
     const spawn = require('../spawn');
 
     jest.unmock('../builder');
