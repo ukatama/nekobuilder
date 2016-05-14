@@ -5,6 +5,7 @@ const spawn = require('./spawn');
 const build = (buildData) => {
     const build = buildData.build;
     const repository = buildData.repository;
+    const actions = buildData.actions;
 
     console.log(build);
     console.log(repository);
@@ -34,6 +35,14 @@ const build = (buildData) => {
         }))
         .then(() => latest &&
             spawn('docker', ['tag', '-f', `${image_name}:${tag}`, `${image_name}:${latest}`])
-        );
+        )
+        .then(() => actions && Promise.all(actions.map((action) => {
+            switch (action.type) {
+                case 'stop':
+                    return spawn('docker', ['stop', '--timeout', 3, action.options]);
+                default:
+                    return Promise.resolve();
+            }
+        })));
 };
 module.exports.build = build;
