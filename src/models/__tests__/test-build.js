@@ -1,42 +1,17 @@
 describe('Build', () => {
-    const TableBuilder = require('knex/lib/schema/tablebuilder');
-    const ColumnBuilder = require('knex/lib/schema/columnbuilder');
-
     const {Model, NOT_FOUND} = require('../model');
     const {Log} = require('../log');
     const {Repository} = require('../repository');
 
     jest.unmock('../build');
     const {Build} = require('../build');
+    Build.fn = {
+        now: jest.fn(),
+    };
 
     it('is model', () => {
         expect(Model.mock.calls).toEqual([['builds']]);
         expect(Model.mock.instances).toEqual([Build]);
-    });
-
-    it('creates schema', () => {
-        const column = new ColumnBuilder();
-        column.references.mockReturnValue({
-            inTable: jest.fn(),
-        });
-        [
-            'notNullable',
-            'nullable',
-        ].map((key) => column[key].mockReturnValue(column));
-        const table = new TableBuilder();
-        [
-            'enum',
-            'increments',
-            'integer',
-            'string',
-            'timestamp',
-        ].map((key) => table[key].mockReturnValue(column));
-
-        Build.fn = {
-            now: jest.fn(),
-        };
-
-        Build.schema(table);
     });
 
     pit('creates a new item from GitHub hook JSON', () => {

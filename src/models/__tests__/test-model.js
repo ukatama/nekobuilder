@@ -1,14 +1,14 @@
 describe('Model', () => {
-    const {create, extend} = require('lodash');
+    const {create} = require('lodash');
 
-    const Knex = require('knex');
-    const SchemaBuilder = require('knex/lib/schema/builder');
-    const TableBuilder = require('knex/lib/schema/tablebuilder');
     const knex = jest.fn();
-    extend(knex, {
-        schema: new SchemaBuilder(),
-    });
-    Knex.mockReturnValue(knex);
+    knex.migrate = {
+        latest: jest.fn().mockReturnValue(Promise.resolve()),
+    };
+    knex.fn = {
+        now: jest.fn(),
+    };
+    jest.setMock('knex', jest.fn().mockReturnValue(knex));
 
     jest.unmock('../model');
     const {Model, NOT_FOUND} = require('../model');
@@ -25,28 +25,15 @@ describe('Model', () => {
     };
 
     let Test;
-    pit('initializes schema', () => {
-        knex.schema.hasTable.mockReturnValue(Promise.resolve(false));
-
+    it('is class', () => {
         const TestModel = function () {
             Model.call(this, 'test-table');
         };
         TestModel.prototype = create(Model.prototype, {
             constructor: Model,
-            schema: jest.fn(),
         });
 
         Test = new TestModel();
-
-        return Promise.resolve()
-            .then(() => {
-                expect(knex.schema.createTable).toBeCalled();
-
-                const call = knex.schema.createTable.mock.calls[0];
-                expect(call[0]).toEqual('test-table');
-                call[1](new TableBuilder());
-                expect(Test.schema).toBeCalled();
-            });
     });
 
     pit('creates a new item', () => {

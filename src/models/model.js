@@ -7,6 +7,10 @@ export const NOT_FOUND = Symbol('Item Not Found');
 
 const knex = Knex(config.get('database'));
 
+knex.migrate
+    .latest()
+    .then(() => {});
+
 export class Model {
     constructor(tableName) {
         this.logger = getLogger(`[Model:${tableName}]`);
@@ -19,14 +23,6 @@ export class Model {
         this.tableName = tableName;
 
         this.fn = knex.fn;
-
-        const schema = knex.schema;
-        schema.hasTable(tableName)
-            .then(
-                (exists) => exists ||
-                    schema.createTable(tableName, (table) => this.schema(table))
-            )
-            .catch((e) => this.fatal(e));
     }
 
     create(data) {
