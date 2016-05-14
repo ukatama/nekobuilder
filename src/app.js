@@ -160,10 +160,7 @@ app.post(
                 'id',
                 +params.actionId
             )
-            .then(
-                () =>
-                    res.redirect(`/${params.repoId}/action/${params.actionId}`)
-            )
+            .then(() => res.redirect(`/${params.repoId}`))
 );
 
 app.delete(
