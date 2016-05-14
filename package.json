@@ -1,6 +1,6 @@
 {
   "name": "nekobuilder-builder",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Inner building container for ukatama/nekobuilder.",
   "main": "index.js",
   "scripts": {
