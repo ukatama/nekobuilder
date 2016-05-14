@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Knex.js database migration
 - Rebuild ([#3](https://github.com/ukatama/nekobuilder/issues/3))
+- Post build actions
 
 ### Dependencies
 - Update jest-cli to 0.9.0
