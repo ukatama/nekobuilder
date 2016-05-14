@@ -39,7 +39,7 @@ const build = (buildData) => {
         .then(() => actions && Promise.all(actions.map((action) => {
             switch (action.type) {
                 case 'stop':
-                    return spawn('docker', ['stop', '--timeout', 3, action.options]);
+                    return spawn('docker', ['stop', '-t', 3, action.options]);
                 default:
                     return Promise.resolve();
             }
