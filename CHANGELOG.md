@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- Branch condition for post build actions
+
 ## [3.0.0] - 2016-05-14
 Match the version with nekobuilder-builder.
 

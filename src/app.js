@@ -2,7 +2,7 @@ import Converter from 'ansi-to-html';
 import {urlencoded} from 'body-parser';
 import {createHmac} from 'crypto';
 import express from 'express';
-import {pick} from 'lodash';
+import _ from 'lodash';
 import {getLogger} from 'log4js';
 import moment from 'moment';
 import {join} from 'path';
@@ -152,7 +152,14 @@ app.post(
     urlencoded(),
     ({body, params}, res, next) =>
         Action
-            .update(pick(body, 'type', 'options'), 'id', +params.actionId)
+            .update(
+                _(body)
+                    .pick('type', 'options', 'branch')
+                    .mapValues((v) => v || null)
+                    .value(),
+                'id',
+                +params.actionId
+            )
             .then(
                 () =>
                     res.redirect(`/${params.repoId}/action/${params.actionId}`)

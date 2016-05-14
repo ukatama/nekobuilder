@@ -11,6 +11,13 @@ html
     section
         h2 Actions
         table
+            thead
+                tr
+                    th id
+                    th type
+                    th container
+                    th branch
+                    th enabled
             tbody
                 each action in actions
                     tr
@@ -18,6 +25,7 @@ html
                             a(href=`/${repo.id}/action/${action.id}`)= action.id
                         td= action.type
                         td= action.options
+                        td= action.branch
                         td= action.enabled ? 'enabled' : 'disabled'
         form(action=`/${repo.id}/action/new`, method="POST")
             input(type="submit", value="new")

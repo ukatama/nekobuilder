@@ -14,8 +14,11 @@ html
             select(id="type", name="type", value=action.type)
                 option(value="stop") Docker stop
 
-            label(for="options") Options:
-            input(id="options", name="options", value=action.options)
+            label(for="options") Container:
+            input(id="options", name="options", value=action.options, required)
+
+            label(for="branch") Branch:
+            input(id="branch", name="branch", value=action.branch)
 
             input(type="submit")
         form(method="POST", action="/" + repo.id + "/action/" + action.id + "/delete")
