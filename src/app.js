@@ -1,9 +1,12 @@
 import Converter from 'ansi-to-html';
+import {urlencoded} from 'body-parser';
 import {createHmac} from 'crypto';
 import express from 'express';
+import {pick} from 'lodash';
 import {getLogger} from 'log4js';
 import moment from 'moment';
 import {join} from 'path';
+import {Action} from './models/action';
 import {Build} from './models/build';
 import {Log} from './models/log';
 import {Repository} from './models/repository';
@@ -87,17 +90,17 @@ app.get('/:repoId([0-9]+)', (req, res, next) =>
         .all([
             Repository.findOne('id', +req.params.repoId),
             Build.find('repository_id', +req.params.repoId),
+            Action.find('repository_id', +req.params.repoId),
         ])
-        .then(([repo, builds]) => ({
+        .then(([repo, builds, actions]) => ({
             repo,
             builds: builds.map((build) => ({
                 ...build,
                 started: moment(build.started).format('lll'),
             })).reverse(),
+            actions,
         }))
-        .then(({repo, builds}) =>
-            res.render('repo', {repo, builds})
-        )
+        .then((data) => res.render('repo', data))
         .catch(next)
 );
 
@@ -124,6 +127,50 @@ app.get('/:repoId([0-9]+)/:buildId([0-9]+)', (req, res, next) =>
 app.post('/:repoId([0-9]+)/:buildId([0-9]+)/rebuild', (req, res, next) =>
     Build.rebuild('id', +req.params.buildId)
         .then(({repository_id, id}) => res.redirect(`/${repository_id}/${id}`))
+        .catch(next)
+);
+
+app.post('/:repoId([0-9]+)/action/new', (req, res, next) =>
+    Action.create({repository_id: +req.params.repoId})
+        .then(
+            ({id, repository_id}) =>
+                res.redirect(`/${repository_id}/action/${id}`)
+        )
+        .catch(next)
+);
+
+app.get('/:repoId([0-9]+)/action/:actionId([0-9]+)', (req, res, next) =>
+    Promise.all([
+        Action.findOne('id', +req.params.actionId),
+        Repository.findOne('id', +req.params.repoId),
+    ])
+    .then(([action, repo]) => res.render('action', {action, repo}))
+);
+
+app.post(
+    '/:repoId([0-9]+)/action/:actionId([0-9]+)',
+    urlencoded(),
+    ({body, params}, res, next) =>
+        Action
+            .update(pick(body, 'type', 'options'), 'id', +params.actionId)
+            .then(
+                () =>
+                    res.redirect(`/${params.repoId}/action/${params.actionId}`)
+            )
+);
+
+app.delete(
+    '/:repoId([0-9]+)/action/:actionId([0-9]+)',
+    ({params}, res, next) => Action
+        .delete('id', +params.actionId)
+        .then(() => res.redirect(`/${params.repoId}`))
+        .catch(next)
+);
+app.post(
+    '/:repoId([0-9]+)/action/:actionId([0-9]+)/delete',
+    ({params}, res, next) => Action
+        .delete('id', +params.actionId)
+        .then(() => res.redirect(`/${params.repoId}`))
         .catch(next)
 );
 

@@ -28,7 +28,7 @@ export class Model {
     create(data) {
         return knex(this.tableName)
             .insert(data)
-            .then(([id]) => knex(this.tableName).where('id', data.id || id));
+            .then(([id]) => this.findOne('id', data.id || id));
     }
 
     findAll() {

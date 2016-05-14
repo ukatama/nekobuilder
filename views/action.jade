@@ -1,0 +1,22 @@
+doctype
+html
+  head
+    title= `Action ${action.id} - ${repo.full_name} Nekobuilder`
+    link(rel="stylesheet", href="/octicons/octicons.css")
+  body
+    header
+        h1
+            = `Action ${action.id} - ${repo.full_name}`
+            a.mega-octicon.octicon-mark-github(href=repo.url, target="_blank")
+    section
+        form(method="POST")
+            label(for="type") Type:
+            select(id="type", name="type", value=action.type)
+                option(value="stop") Docker stop
+
+            label(for="options") Options:
+            input(id="options", name="options", value=action.options)
+
+            input(type="submit")
+        form(method="POST", action="/" + repo.id + "/action/" + action.id + "/delete")
+            input(type="submit", value="Delete")

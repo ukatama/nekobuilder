@@ -5,6 +5,7 @@ const app = {
     set: jest.genMockFunction(),
     use: jest.genMockFunction(),
     post: jest.genMockFunction(),
+    delete: jest.genMockFunction(),
     listen: jest.genMockFunction(),
 };
 const express = jest.genMockFunction().mockReturnValue(app);

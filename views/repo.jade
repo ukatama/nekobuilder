@@ -4,17 +4,33 @@ html
     title= `${repo.full_name} Nekobuilder`
     link(rel="stylesheet", href="/octicons/octicons.css")
   body
-    h1
-        = repo.full_name
-        a.mega-octicon.octicon-mark-github(href=repo.url, target="_blank")
-    table
-        tbody
-            each build in builds
-                tr
-                    th
-                        a(href=build.repository_id + '/' + build.id)= build.id
-                    td= build.state
-                    td= build.ref
-                    td= build.commit_message
-                    td= build.commit_author_name
-                    td= build.started
+    header
+        h1
+            = repo.full_name
+            a.mega-octicon.octicon-mark-github(href=repo.url, target="_blank")
+    section
+        h2 Actions
+        table
+            tbody
+                each action in actions
+                    tr
+                        th
+                            a(href=`/${repo.id}/action/${action.id}`)= action.id
+                        td= action.type
+                        td= action.options
+                        td= action.enabled ? 'enabled' : 'disabled'
+        form(action=`/${repo.id}/action/new`, method="POST")
+            input(type="submit", value="new")
+    section
+        h2 Builds
+        table
+            tbody
+                each build in builds
+                    tr
+                        th
+                            a(href=build.repository_id + '/' + build.id)= build.id
+                        td= build.state
+                        td= build.ref
+                        td= build.commit_message
+                        td= build.commit_author_name
+                        td= build.started

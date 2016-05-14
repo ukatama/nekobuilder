@@ -1,6 +1,7 @@
 import byline from 'byline';
 import {spawn} from 'child_process';
 import {getLogger} from 'log4js';
+import {Action} from './models/action';
 import {Build} from './models/build';
 import {Log} from './models/log';
 import {Repository} from './models/repository';
@@ -72,11 +73,17 @@ const runBuildContainer = (data) =>
 export function build(id) {
     return Build
         .findOne({id})
-        .then(({repository_id}) => Repository.findOne('id', repository_id))
-        .then((repository) =>
+        .then(({repository_id}) => Promise.all([
+            Repository.findOne('id', repository_id),
+            Action.find({
+                repository_id,
+                enabled: true,
+            }),
+        ]))
+        .then(([repository, actions]) =>
             Build
                 .update({state: 'building'}, {id})
-                .then((build) => ({build, repository}))
+                .then((build) => ({build, repository, actions}))
         )
         .then(runBuildContainer)
         .then(() =>
