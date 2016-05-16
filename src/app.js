@@ -139,7 +139,7 @@ app.post('/:repoId([0-9]+)/action/new', (req, res, next) =>
         .catch(next)
 );
 
-app.get('/:repoId([0-9]+)/action/:actionId([0-9]+)', (req, res, next) =>
+app.get('/:repoId([0-9]+)/action/:actionId([0-9]+)', (req, res) =>
     Promise.all([
         Action.findOne('id', +req.params.actionId),
         Repository.findOne('id', +req.params.repoId),
@@ -149,8 +149,8 @@ app.get('/:repoId([0-9]+)/action/:actionId([0-9]+)', (req, res, next) =>
 
 app.post(
     '/:repoId([0-9]+)/action/:actionId([0-9]+)',
-    urlencoded(),
-    ({body, params}, res, next) =>
+    urlencoded({extended: true}),
+    ({body, params}, res) =>
         Action
             .update(
                 _(body)

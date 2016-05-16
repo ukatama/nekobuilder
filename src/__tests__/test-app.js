@@ -7,6 +7,12 @@ jest.dontMock('../app');
 describe('app', () => {
     const crypto = require('crypto');
     const express = require('express');
+    jest.setMock('log4js', {
+        getLogger: jest.fn().mockReturnValue({
+            info: jest.fn(),
+        }),
+    });
+
     require('../app');
 
     const {Build} = require('../models/build');
@@ -48,6 +54,9 @@ describe('app', () => {
     it('listens port 80', () => {
         expect(express.app.listen).toBeCalled();
         expect(express.app.listen.mock.calls[0][0]).toBe(80);
+
+        const callback = express.app.listen.mock.calls[0][1];
+        if (callback) return callback();
     });
 
     it('handles POST /hook', () => {
@@ -59,6 +68,20 @@ describe('app', () => {
 
     it('respond 400 to bad signature', () => {
         handler(req, res, next);
+
+        expect(res.status).toBeCalledWith(400);
+        expect(next).not.toBeCalled();
+
+        req.on.mockClear();
+        res.status.mockClear();
+
+        reqHeaders['X-Hub-Signature'] = 'invalid';
+        reqHeaders['X-GitHub-Event'] = 'push';
+
+        handler(req, res, next);
+        req.on.mock.calls
+            .filter((call) => call[0] === 'end')
+            .forEach((call) => call[1]());
 
         expect(res.status).toBeCalledWith(400);
         expect(next).not.toBeCalled();
