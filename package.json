@@ -1,6 +1,6 @@
 {
   "name": "nekobuilder",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "Automated self-hosted docker image builder.",
   "main": "lib",
   "scripts": {
