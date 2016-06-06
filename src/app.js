@@ -79,7 +79,7 @@ app.get('/', (req, res, next) =>
         .then((repos) => repos.sort((a, b) => (a.started < b.started)))
         .then((repos) => repos.map((repo) => ({
             ...repo,
-            started: moment(repo.stareted).format('lll'),
+            started: moment(repo.started).format('lll'),
         })))
         .then((repos) => res.render('repos', {repos}))
         .catch(next)
