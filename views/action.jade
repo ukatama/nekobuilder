@@ -20,6 +20,9 @@ html
             label(for="branch") Branch:
             input(id="branch", name="branch", value=action.branch)
 
+            label(for="enabled") Enabled:
+            input(id="enabled", name="enabled", type="checkbox", checked=(action.enabled ? "checked" : undefined), value=1)
+
             input(type="submit")
         form(method="POST", action="/" + repo.id + "/action/" + action.id + "/delete")
             input(type="submit", value="Delete")

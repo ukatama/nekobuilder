@@ -153,10 +153,13 @@ app.post(
     ({body, params}, res) =>
         Action
             .update(
-                _(body)
-                    .pick('type', 'options', 'branch')
-                    .mapValues((v) => v || null)
-                    .value(),
+                {
+                    ..._(body)
+                        .pick('type', 'options', 'branch')
+                        .mapValues((v) => v || null)
+                        .value(),
+                    enabled: Boolean(body.enabled),
+                },
                 'id',
                 +params.actionId
             )
