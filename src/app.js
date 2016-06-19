@@ -63,20 +63,10 @@ app.post('/hook', (req, res, next) => {
 
 app.get('/', (req, res, next) =>
     Repository.findAll()
-        .then((repos) => Promise.all(
-            repos.map((repo) => Build
-                .find('repository_id', repo.id)
-                .orderBy('started', 'DESC')
-                .first()
-                // eslint-disable-next-line max-nested-callbacks
-                .then((build) => ({
-                    ...build,
-                    ...repo,
-                    started: new Date(build.started),
-                }))
-            )
-        ))
-        .then((repos) => repos.sort((a, b) => (a.started < b.started)))
+        .select('repositories.*')
+        .max('builds.started as started')
+        .join('builds', 'repositories.id', 'builds.repository_id')
+        .orderBy('started', 'DESC')
         .then((repos) => repos.map((repo) => ({
             ...repo,
             started: moment(repo.started).format('lll'),
