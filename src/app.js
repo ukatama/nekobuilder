@@ -66,6 +66,7 @@ app.get('/', (req, res, next) =>
         .select('repositories.*')
         .max('builds.started as started')
         .join('builds', 'repositories.id', 'builds.repository_id')
+        .groupBy('repositories.id')
         .orderBy('started', 'DESC')
         .then((repos) => repos.map((repo) => ({
             ...repo,
