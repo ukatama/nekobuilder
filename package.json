@@ -4,6 +4,7 @@
   "description": "Automated self-hosted docker image builder.",
   "main": "lib",
   "scripts": {
+    "prestart": "docker build -t ukatama/nekobuilder-builder -f Dockerfile-builder .",
     "start": "node .",
     "build": "gulp build",
     "production": "gulp production",
