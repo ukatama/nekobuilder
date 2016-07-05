@@ -1,0 +1,4 @@
+database:
+    client: "sqlite3"
+    connection:
+        filename: "tmp/db.sqlite"
